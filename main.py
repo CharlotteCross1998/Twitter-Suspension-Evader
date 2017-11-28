@@ -1,4 +1,4 @@
-import sys
+import sys, re
 try:
     import oauth, tweepy
 except:
@@ -41,8 +41,8 @@ reviewMode = False
 popularMode = False
 
 tweets = [[]]
-delete_normal = ["nigger", "kys", "kill yourself", "kill yourselves", "fuck you", "you should die"]
-delete_paranoia = ["you should", "you are", "die", "kill", "rape", "cum", "murder"]
+delete_normal = [" nigger ", " kys ", "kill yourself", "kill yourselves", "fuck you", "you should die", " nigga ", " cunt ", " bastard ", " dick ", " fucker "]
+delete_paranoia = ["you should", "you are", " die ", " kill ", " rape ", " cum ", " murder ", " hate ",  " shit "]
 
 #because I'm lazy
 for i in range(0, len(delete_normal)-1):
@@ -50,17 +50,30 @@ for i in range(0, len(delete_normal)-1):
 
 def downloadTweets():
     global tweets
+    tweetCount = 0
     print("Downloading tweets... hold on...")
     #tweet_mode='extended' gets 280 but .text doesn't work
     for page in tweepy.Cursor(api.user_timeline,id=username, count=200, include_entities=True).pages(16):
         for status in page:
             if status.text.find("retweeted_status") == -1:
-                tweets += [[status.text.lower(), status.id]]
-                
+                if not status.text.lower().startswith("rt"):
+                    tweet = status.text.lower()
+                    tweet = re.sub(r'(^.*https?:\/\/.*[\r\n]*$|^https?:\/\/.*[\r\n]*$)', ' ', tweet, flags=re.MULTILINE)
+                    tweet = tweet.replace("<br>","\n").replace("\\n","\n").replace("&gt;",">").replace("&lt;","<").replace("&amp;","&").replace("RT"," ")
+                    tweet = re.sub(r'(^.*https?:\/\/.*[\r\n]*$|^https?:\/\/.*[\r\n]*$)', ' ', tweet, flags=re.MULTILINE)
+                    tweet = ' '.join(filter(lambda x:x[0]!='@', tweet.split()))
+                    tweets += [[str(tweet), status.id]]
+                    tweetCount += 1
+    print(str(tweetCount) + " tweets found to delete (max 3600) ")
+
+
+    
 def delete(normal):
     global tweets
     global reviewMode
     global popularMode
+    normalCountMax = 0
+    paranoaiCountMax = 0
     count = 0
     #first is a blank array so 1 to skip it
     for i in range(1,len(tweets)-1):
@@ -68,6 +81,7 @@ def delete(normal):
             for j in delete_normal:
                 tweet = tweets[i][0]
                 if j in tweet:
+                    normalCountMax += 1
                     canDelete = True
                     if popularMode:
                         if api.get_status(tweets[i][1]).retweet_count < 20:
@@ -103,9 +117,10 @@ def delete(normal):
                         except Exception as e:
                             print("Error: " + str(e))
         else:
-             for j in delete_normal:
+             for j in delete_paranoia:
                 tweet = tweets[i][0]
                 if j in tweet:
+                    paranoaiCountMax += 1
                     canDelete = True
                     if popularMode:
                         if api.get_status(tweets[i][1]).retweet_count < 20:
@@ -140,7 +155,10 @@ def delete(normal):
                             count += 1
                         except Exception as e:
                             print("Error: " + str(e))
-    print(str(count)+ " tweets deleted.")
+    if normal:
+        print(str(count)+ " / " + str(normalCountMax) +  " tweets deleted.")
+    else:
+        print(str(count)+ " / " + str(paranoaiCountMax) +  " tweets deleted.")
     
 def main():
     global reviewMode
