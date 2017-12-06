@@ -1,4 +1,4 @@
-import sys, re
+import sys, re, os
 try:
     import oauth, tweepy
 except:
@@ -15,16 +15,7 @@ c_secret = ''
 a_key = ''
 a_secret = ''
 
-#TODO
 help_text = "How to get keys:\nVisit http://www.apps.twitter.com, and click \"create new app\".\mEnter a name and a description. For website just put http://127.0.0.1. Click create your twitter application.\nGo to Keys and Access Tokens, and where it says consumer key\ncopy and paste that into c_key. Do the same with consumer secret and c_secret.\nGo down to \"your access token\" and click create my access token.\nSame as before, access token goes in a_key and access secret goes in a_secret.\nIf nothing works, DM me a screenshot of the 4 lines above."
-#TODO
-"""
-
-Logging to file for errors
-Quit whenever?
-Read in optional/mandatory filters from a file
-
-"""
 
 if not c_key or not c_secret or not a_key or not a_secret:
     sys.exit("Error: Keys are not defined.\n"+help_text)
@@ -41,12 +32,19 @@ reviewMode = False
 popularMode = False
 
 tweets = [[]]
-delete_normal = [" nigger ", " kys ", "kill yourself", "kill yourselves", "fuck you", "you should die", " nigga ", " cunt ", " bastard ", " dick ", " fucker "]
-delete_paranoia = ["you should", "you are", " die ", " kill ", " rape ", " cum ", " murder ", " hate ",  " shit "]
+#filters case matters because all the tweets will be converted to lowercase anyways
+delete_normal = [" nigger ", " kys ", "kill yourself", "kill yourselves", "fuck you", "you should die", " nigga ", " cunt ", " bastard ", " dick ", " fucker ", " fuck " , " dickhead" , " dick " , " retard " , " faggot " , " fag "]
+delete_paranoia = [ " you should", " you are", " die ", " kill ", " rape ", " cum ", " murder ", " hate ",  " shit ", " dumbass ", " commit " , " cut " , " knife " , " knives " , " shank " , " shoot " , " sissy " , " homo " , " finger " , " wanker " , " pussy " , " spesh " , " autist " , " autism " , " autismo " , " tranny " , " cock ", " i'm going to " , " im going to ", " i'm gonna " , " im gonna "]
 
 #because I'm lazy
 for i in range(0, len(delete_normal)-1):
     delete_paranoia += [delete_normal[i]]
+
+if os.path.isfile("filter"):
+    print("Found filter list... adding words...")
+    delete_paranoia += [" " + line.rstrip("\n") + " " for line in open('filter')]
+else:
+    print("No filter list found. Proceeding with built in list...")
 
 def downloadTweets():
     global tweets
@@ -116,6 +114,7 @@ def delete(normal):
                             count += 1
                         except Exception as e:
                             print("Error: " + str(e))
+                    break
         else:
              for j in delete_paranoia:
                 tweet = tweets[i][0]
@@ -155,6 +154,7 @@ def delete(normal):
                             count += 1
                         except Exception as e:
                             print("Error: " + str(e))
+                    break
     if normal:
         print(str(count)+ " / " + str(normalCountMax) +  " tweets deleted.")
     else:
