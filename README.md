@@ -8,4 +8,4 @@ Finds and deletes tweets which could be used against you.
 - "Review" mode - review each tweet manually before choosing whether to delete or not
 
 # How to help:
-See [https://github.com/bradcross1998/Twitter-Suspension-Evader/blob/master/CONTRIBUTING.md](contributing).
+See [contributing](CONTRIBUTING.md).
