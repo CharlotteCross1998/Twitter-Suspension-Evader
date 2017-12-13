@@ -9,6 +9,8 @@ however I only know to do it via application keys.
 
 - Config file. Settings such as filter file name, how many rts/likes the popular mode needs, defaults for review/popular mode etc.
 
+- Upload archive to allow for more than 3600 tweets to be searched.
+
 ## Documentation
 
 Keeping documentation updated would be nice too. Feel free to edit documentations, such as this (e.g adding ideas).
