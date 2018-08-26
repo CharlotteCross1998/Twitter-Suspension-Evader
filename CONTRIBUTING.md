@@ -11,6 +11,8 @@ however I only know to do it via application keys.
 
 - Upload archive to allow for more than 3600 tweets to be searched.
 
+- Using fuzzywuzzy matching 
+
 ## Documentation
 
 Keeping documentation updated would be nice too. Feel free to edit documentations, such as this (e.g adding ideas).
